@@ -40,3 +40,10 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# archivos assets
+*/assets/css
+*/assets/js
+*/assets/images
+*/assets/plugins
+*/assets/scss
