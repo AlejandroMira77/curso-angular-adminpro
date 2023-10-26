@@ -23,6 +23,14 @@ export class UserService {
     private ngZone: NgZone
   ) { }
 
+  get token(): string {
+    return localStorage.getItem('token') || '';
+  }
+
+  get uid(): string {
+    return this.userInfo.uid || '';
+  }
+
   createUser(formData: RegisterForm) {
     return this.http.post(`${base_url}/users`, formData).pipe(
       tap((resp: any) => {
@@ -48,28 +56,40 @@ export class UserService {
   }
 
   validateToken(): Observable<boolean> {
-    const token = localStorage.getItem('token') || '';
     return this.http.get(`${base_url}/login/renew`, {
       headers: {
-        'x-token': token
+        'x-token': this.token
       }
     }).pipe(
-      tap((resp: any) => {
+      map((resp: any) => {
         const { email, google, name, role, uid, img } = resp.usuario;
         this.userInfo = new User(name, email, '', img, google, role, uid);
         localStorage.setItem('token', resp.token);
+        return true;
       }),
-      map(resp => true),
       catchError(error => of(false))
     );
   }
 
   logout() {
     localStorage.removeItem('token');
+    this.router.navigateByUrl('/login');
     google.accounts.id.revoke('alejandro.mira77@gmail.com', () => {
       this.ngZone.run(() => {
         this.router.navigateByUrl('/login');
       });
     });
+  }
+
+  updatePerfilUser(data: {email: string, name: string, role?: string}) {
+    data = {
+      ...data,
+      role: this.userInfo.role
+    }
+    return this.http.put(`${ base_url }/users/${ this.uid }`, data, {
+      headers: {
+        'x-token': this.token
+      }
+    })
   }
 }
