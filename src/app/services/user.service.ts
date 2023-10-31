@@ -1,10 +1,11 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, delay, map, of, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { RegisterForm } from '../interfaces/register-form.interface';
 import { LoginForm } from '../interfaces/login-form.interface';
+import { LoadUser } from '../interfaces/load-users.interface';
 import { User } from '../models/user.model';
 
 declare const google: any;
@@ -29,6 +30,14 @@ export class UserService {
 
   get uid(): string {
     return this.userInfo.uid || '';
+  }
+
+  get headers() {
+    return {
+      headers: {
+        'x-token': this.token
+      }
+    }
   }
 
   createUser(formData: RegisterForm) {
@@ -56,11 +65,7 @@ export class UserService {
   }
 
   validateToken(): Observable<boolean> {
-    return this.http.get(`${base_url}/login/renew`, {
-      headers: {
-        'x-token': this.token
-      }
-    }).pipe(
+    return this.http.get(`${base_url}/login/renew`, this.headers).pipe(
       map((resp: any) => {
         const { email, google, name, role, uid, img } = resp.usuario;
         this.userInfo = new User(name, email, '', img, google, role, uid);
@@ -86,10 +91,28 @@ export class UserService {
       ...data,
       role: this.userInfo.role
     }
-    return this.http.put(`${ base_url }/users/${ this.uid }`, data, {
-      headers: {
-        'x-token': this.token
-      }
-    })
+    return this.http.put(`${ base_url }/users/${ this.uid }`, data, this.headers)
+  }
+
+  loadUsers(from: number = 0) {
+    const url = `${ base_url }/users/?from=${ from }`;
+    return this.http.get<LoadUser>(url, this.headers).
+    pipe(
+      delay(200),
+      map(resp => {
+        const users = resp.users.map(
+          user => new User(user.name, user.email, '', user.img, user.google, user.role, user.uid)
+        )
+        return {
+          total: resp.total,
+          users
+        };
+      })
+    );
+  }
+
+  deleteUser(user: User) {
+    const url = `${ base_url }/users/${ user.uid }`;
+    return this.http.delete(url, this.headers);
   }
 }
