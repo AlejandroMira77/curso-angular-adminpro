@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { User } from 'src/app/models/user.model';
+import { ModalImagenService } from 'src/app/services/modal-imagen.service';
 import { SearchService } from 'src/app/services/search.service';
 import { UserService } from 'src/app/services/user.service';
 import Swal from 'sweetalert2';
@@ -9,21 +11,28 @@ import Swal from 'sweetalert2';
   templateUrl: './users.component.html',
   styleUrls: []
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
 
   totalUsers: number = 0;
   users: User[] = [];
   usersTemp: User[] = [];
   from: number = 0;
   loading: boolean = true;
+  imgSubs!: Subscription;
 
   constructor(
     private userService: UserService,
-    private search: SearchService
+    private search: SearchService,
+    private modalImagenService: ModalImagenService
   ) { }
+
+  ngOnDestroy(): void {
+    this.imgSubs.unsubscribe();
+  }
 
   ngOnInit(): void {
     this.loadUsers();
+    this.imgSubs = this.modalImagenService.newImage.subscribe(() => this.loadUsers());
   }
 
   loadUsers() {
@@ -80,6 +89,14 @@ export class UsersComponent implements OnInit {
       }
     });
     return;
+  }
+
+  changeRole(user: User) {
+    this.userService.saveUser(user).subscribe();
+  }
+
+  openModal(user: User) {
+    this.modalImagenService.showModal('usuarios', user.uid, user.img);
   }
 
 }

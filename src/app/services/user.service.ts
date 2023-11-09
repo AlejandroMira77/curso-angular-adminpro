@@ -91,7 +91,7 @@ export class UserService {
       ...data,
       role: this.userInfo.role
     }
-    return this.http.put(`${ base_url }/users/${ this.uid }`, data, this.headers)
+    return this.http.put(`${ base_url }/users/${ this.uid }`, data, this.headers);
   }
 
   loadUsers(from: number = 0) {
@@ -114,5 +114,9 @@ export class UserService {
   deleteUser(user: User) {
     const url = `${ base_url }/users/${ user.uid }`;
     return this.http.delete(url, this.headers);
+  }
+
+  saveUser(data: User) {
+    return this.http.put(`${ base_url }/users/${ data.uid }`, data, this.headers);
   }
 }
