@@ -33,7 +33,7 @@ export class SearchService {
     );
   }
 
-  search(type: 'usuarios'|'medicos'|'hospitales', term: string) {
+  search(type: 'usuarios' | 'medicos' | 'hospitales', term: string) {
     const url = `${base_url}/all/collection/${type}/${term}`;
     return this.http.get<any[]>(url, this.headers)
       .pipe(
@@ -41,9 +41,9 @@ export class SearchService {
           switch (type) {
             case 'usuarios':
               return this.transformUsers(resp.resultados);
+            case 'hospitales':
+              return resp.resultados;
             // case 'medicos':
-            //   return;
-            // case 'hospitales':
             //   return;
             default:
               return [];

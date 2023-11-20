@@ -16,6 +16,7 @@ import { PerfilComponent } from './perfil/perfil.component';
 import { UsersComponent } from './maintenances/users/users.component';
 import { HospitalsComponent } from './maintenances/hospitals/hospitals.component';
 import { MedicosComponent } from './maintenances/medicos/medicos.component';
+import { PipesModule } from '../pipes/pipes.module';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { MedicosComponent } from './maintenances/medicos/medicos.component';
     RouterModule,
     ReactiveFormsModule,
     FormsModule,
-    ComponentsModule
+    ComponentsModule,
+    PipesModule
   ],
   exports: [
     DashboardComponent,
