@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import Swal from 'sweetalert2';
-import { Subscription } from 'rxjs';
+import { Subscription, delay } from 'rxjs';
 import { Hospital } from 'src/app/models/hospital.model';
-import { HospitalsService } from 'src/app/services/hospitals.service';
+import { HospitalService } from 'src/app/services/hospital.service';
 import { ModalImagenService } from 'src/app/services/modal-imagen.service';
 import { SearchService } from 'src/app/services/search.service';
 
@@ -11,7 +11,7 @@ import { SearchService } from 'src/app/services/search.service';
   templateUrl: './hospitals.component.html',
   styleUrls: []
 })
-export class HospitalsComponent implements OnInit {
+export class HospitalsComponent implements OnInit, OnDestroy {
 
   hospitales: Hospital[] = [];
   hospitalesTemp: Hospital[] = [];
@@ -19,7 +19,7 @@ export class HospitalsComponent implements OnInit {
   imgSubs!: Subscription;
 
   constructor(
-    private hospitalsService: HospitalsService,
+    private hospitalsService: HospitalService,
     private modalImagenService: ModalImagenService,
     private search: SearchService,
   ) { }
@@ -30,7 +30,7 @@ export class HospitalsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadHospitals();
-    this.imgSubs = this.modalImagenService.newImage.subscribe(() => this.loadHospitals());
+    this.imgSubs = this.modalImagenService.newImage.pipe(delay(100)).subscribe(() => this.loadHospitals());
   }
 
   loadHospitals() {
@@ -69,7 +69,6 @@ export class HospitalsComponent implements OnInit {
     });
 
     if (value?.trim().length || 0 > 0) {
-      console.log(value);
       this.hospitalsService.createHospital(value || '')
       .subscribe((resp: any) => {
         this.hospitales.push(resp.hospitalDB);

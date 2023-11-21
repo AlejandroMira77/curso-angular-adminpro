@@ -43,8 +43,8 @@ export class SearchService {
               return this.transformUsers(resp.resultados);
             case 'hospitales':
               return resp.resultados;
-            // case 'medicos':
-            //   return;
+            case 'medicos':
+              return resp.resultados;
             default:
               return [];
           }

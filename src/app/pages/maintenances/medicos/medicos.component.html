@@ -2,13 +2,14 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <input type="text" class="form-control" placeholder="Buscar usuario..." />
+                <input type="text" class="form-control" placeholder="Buscar medico..."
+                (keyup)="searchMedico(txtSearch.value)" #txtSearch/>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row animated fadeIn fast">
+<div class="row animated fadeIn fast" *ngIf="loading">
     <div class="col-12">
         <div class="alert alert-info text-center">
             <h4 class="alert-heading">Cargando</h4>
@@ -18,36 +19,46 @@
     </div>
 </div>
 
-<div class="row animated fadeIn fast">
+<div class="row animated fadeIn fast" *ngIf="!loading">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Usuarios</h4>
-                <h6 class="card-subtitle">Usuarios registrados en la aplicación</h6>
+                <div class="row">
+                    <div class="col-8">
+                        <h4 class="card-title">Medicos ({{ medicos.length }})</h4>
+                        <h6 class="card-subtitle">Medicos registrados en la aplicación</h6>
+                    </div>
+                    <div class="col">
+                        <div class="text-right">
+                            <a class="btn btn-primary" routerLink="/dashboard/medico/new">
+                                <i class="fa fa-hospital-o"></i>
+                                Crear Medico
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Avatar</th>
-                                <th>Email</th>
+                                <th class="w100">Foto</th>
                                 <th>Nombre</th>
-                                <th>Role</th>
-                                <th>Auth</th>
-                                <th class="text-nowrap">Acciones</th>
+                                <th class="w100 text-nowrap">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Lunar probe project</td>
-                                <td>May 15, 2015</td>
-                                <td>May 15, 2015</td>
-                                <td>May 15, 2015</td>
-                                <td>May 15, 2015</td>
+                            <tr *ngFor="let medico of medicos">
+                                <td>
+                                    <img class="avatar cursor" [src]="medico.img! | imagen: 'medicos'" [alt]="medico.name"
+                                    (click)="openModal(medico)">
+                                </td>
+                                <td>{{ medico.name }}</td>
                                 <td class="text-nowrap text-center">
-                                    <a href="#" data-toggle="tooltip" data-original-title="Editar">
+                                    <a [routerLink]="['/dashboard/medico', medico._id]" data-toggle="tooltip" data-original-title="Editar">
                                         <i class="fa fa-pencil text-inverse m-r-10"></i>
                                     </a>
-                                    <a href="#" data-toggle="tooltip" data-original-title="Borrar">
+                                    <a data-toggle="tooltip" data-original-title="Borrar"
+                                    (click)="deleteMedico(medico)">
                                         <i class="fa fa-close text-danger"></i>
                                     </a>
                                 </td>
@@ -55,9 +66,6 @@
                         </tbody>
                     </table>
                 </div>
-                <button class="btn btn-secondary">Anterior</button>
-                &nbsp;
-                <button class="btn btn-secondary">Siguiente</button>
             </div>
         </div>
     </div>

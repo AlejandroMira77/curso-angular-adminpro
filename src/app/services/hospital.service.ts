@@ -9,7 +9,7 @@ const base_url = environment.base_url;
 @Injectable({
   providedIn: 'root'
 })
-export class HospitalsService {
+export class HospitalService {
 
   constructor(
     private http: HttpClient
