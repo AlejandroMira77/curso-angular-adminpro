@@ -48,7 +48,7 @@
                         </thead>
                         <tbody>
                             <tr *ngFor="let medico of medicos">
-                                <td>
+                                <td class="text-center">
                                     <img class="avatar cursor" [src]="medico.img! | imagen: 'medicos'" [alt]="medico.name"
                                     (click)="openModal(medico)">
                                 </td>

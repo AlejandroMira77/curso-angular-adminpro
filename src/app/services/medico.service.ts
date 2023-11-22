@@ -35,7 +35,7 @@ export class MedicoService {
     )
   }
 
-  createMedico(medico: Medico) {
+  createMedico(medico: { name: string, hospital: string }) {
     const url = `${ base_url }/medicos`;
     return this.http.post(url, medico, this.headers);
   }
@@ -48,5 +48,13 @@ export class MedicoService {
   deleteMedico(_id: string) {
     const url = `${ base_url }/medicos/${ _id }`;
     return this.http.delete(url, this.headers);
+  }
+
+  getMedicoById(id: string) {
+    const url = `${ base_url }/medicos/${ id }`;
+    return this.http.get<{medico: Medico[]}>(url, this.headers)
+    .pipe(
+      map((resp: {medico: Medico[]}) => resp.medico)
+    )    
   }
 }
