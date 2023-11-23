@@ -6,6 +6,7 @@ import { Medico } from 'src/app/models/medico.model';
 import { HospitalService } from 'src/app/services/hospital.service';
 import { MedicoService } from 'src/app/services/medico.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { delay } from 'rxjs';
 
 @Component({
   selector: 'app-medico',
@@ -41,10 +42,20 @@ export class MedicoComponent implements OnInit {
 
   saveMedico() {
     const { name } = this.medicoForm.value; 
-    this.medicoService.createMedico(this.medicoForm.value).subscribe((resp: any) => {
-      Swal.fire('Medico registrado', name + ' creado correctamente', 'success');
-      this.router.navigateByUrl(`/dashboard/medico/${ resp.medico._id }`)
-    });
+    if (this.selectedMedico) {
+      const data = {
+        ...this.medicoForm.value,
+        _id: this.selectedMedico._id
+      }
+      this.medicoService.updateMedico(data).subscribe(resp => {
+        Swal.fire('Medico actualizado', name + ' actualizado correctamente', 'success');
+      });
+    } else {
+      this.medicoService.createMedico(this.medicoForm.value).subscribe((resp: any) => {
+        Swal.fire('Medico registrado', name + ' creado correctamente', 'success');
+        this.router.navigateByUrl(`/dashboard/medico/${ resp.medico._id }`)
+      });
+    }
   }
 
   loadHospitals() {
@@ -55,8 +66,16 @@ export class MedicoComponent implements OnInit {
   }
 
   loadMedico(id: string) {
-    this.medicoService.getMedicoById(id).subscribe(resp => {
+    if (id === 'new') {
+      return;
+    }
+    this.medicoService.getMedicoById(id).pipe(delay(100)).subscribe((resp: any) => {
+      if (!resp) {
+        return this.router.navigateByUrl(`/dashboard/medicos`);
+      }
       this.selectedMedico = resp;
+      this.medicoForm.setValue({name: resp.name, hospital: resp.hospital._id});
+      return true;
     });
   }
 
