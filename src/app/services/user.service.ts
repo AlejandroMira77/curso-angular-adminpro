@@ -40,10 +40,14 @@ export class UserService {
     }
   }
 
+  get role(): 'ADMIN_ROLE' | 'USER_ROLE' {
+    return this.userInfo.role!;
+  }
+
   createUser(formData: RegisterForm) {
     return this.http.post(`${base_url}/users`, formData).pipe(
       tap((resp: any) => {
-        localStorage.setItem('token', resp.token);
+        this.saveLocalStorage(resp.token, resp.menu);
       })
     );
   }
@@ -51,7 +55,7 @@ export class UserService {
   login(formData: LoginForm) {
     return this.http.post(`${base_url}/login`, formData).pipe(
       tap((resp: any) => {
-        localStorage.setItem('token', resp.token);
+        this.saveLocalStorage(resp.token, resp.menu);
       })
     );
   }
@@ -59,7 +63,7 @@ export class UserService {
   loginGoogle(token: string) {
     return this.http.post(`${base_url}/login/google`, { token }).pipe(
       tap((resp: any) => {
-        localStorage.setItem('token', resp.token);
+        this.saveLocalStorage(resp.token, resp.menu);
       })
     );
   }
@@ -69,7 +73,7 @@ export class UserService {
       map((resp: any) => {
         const { email, google, name, role, uid, img } = resp.usuario;
         this.userInfo = new User(name, email, '', img, google, role, uid);
-        localStorage.setItem('token', resp.token);
+        this.saveLocalStorage(resp.token, resp.menu);
         return true;
       }),
       catchError(error => of(false))
@@ -78,6 +82,7 @@ export class UserService {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('menu');
     this.router.navigateByUrl('/login');
     google.accounts.id.revoke('alejandro.mira77@gmail.com', () => {
       this.ngZone.run(() => {
@@ -118,5 +123,10 @@ export class UserService {
 
   saveUser(data: User) {
     return this.http.put(`${ base_url }/users/${ data.uid }`, data, this.headers);
+  }
+
+  saveLocalStorage(token: string, menu: any) {
+    localStorage.setItem('token', token);
+    localStorage.setItem('menu', JSON.stringify(menu));
   }
 }
